@@ -135,7 +135,10 @@ export default function Page() {
 			</TabContext>
 		</div>);
 	} else {
-		content = (<div>
+		content = (<div className="flex flex-col items-center">
+			<Typography className="text-center border-2 border-black rounded" variant="h3" sx={{m: 5, p: 2}}>Flunder</Typography>
+			<Typography className="text-center" sx={{m: 3}} variant="h5">Welcome to the Dating site for BPHC.</Typography>
+			<Typography className="text-center" variant="h6" sx={{m: 3}}>Site under constrution, please be patient</Typography>
 			<Button onClick={() => {signInWithPopup(auth, provider)}} variant="contained">Sign In</Button>
 		</div>);
 	}
