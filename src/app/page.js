@@ -22,15 +22,15 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
+import Slider from '@mui/material/Slider';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { AcUnit } from "@mui/icons-material";
 
 const provider = new GoogleAuthProvider();
 const imageStorageRef = ref(storage, "images/");
 
-let imageField = "", nameField = "", ageField = "", genderField = "", bioField = "";
-let needToUpdateData = true;
+let imageField = "", nameField = "", genderField = "", bioField = "", prefGenderField = "";
 let actualImageUrl = "";
+let needToUpdateData = true;
 
 export default function Page() {
 	let [userAuth, authLoading, authError] = useAuthState(auth);
@@ -47,7 +47,7 @@ export default function Page() {
 
 	let [userData, userDataLoading, userDataError] = useDocument(doc(db, "users", uid));
 	
-	let name = "", age = "", gender = "", bio = "";
+	let name = "", age = "", gender = "", bio = "", prefMinAge = "", prefMaxAge = "", prefGender = "";
 	if (userDataLoading) {
 		name = age = gender = bio = "Loading...";
 		needToUpdateData = true;
@@ -65,21 +65,30 @@ export default function Page() {
 		age = userData.data().age;
 		gender = userData.data().gender;
 		bio = userData.data().bio;
+		prefMinAge = userData.data().prefMinAge;
+		prefMaxAge = userData.data().prefMaxAge;
+		prefGender = userData.data().prefGender;
 		if (actualImageUrl) {
 			needToUpdateData = false;
 		}
 	}
+
+	let [minAge, setMinAge] = useState(18);
+	let [maxAge, setMaxAge] = useState(35);
+
+	let [ageField, setAgeField] = useState(age ? age : NaN);
 
 	let [nameFieldError, setNameFieldError] = useState(false);
 	let [ageFieldError, setAgeFieldError] = useState(false);
 	let [genderFieldError, setGenderFieldError] = useState(false);
 	let [bioFieldError, setBioFieldError] = useState(false);
 	let [invalidFieldFilling, setInvalidFieldFilling] = useState(false);
+
 	function updateData() {
-		setNameFieldError(!(nameField || name));
-		setAgeFieldError(!(ageField || age));
-		setGenderFieldError(!(genderField || gender));
-		setBioFieldError(!(bioField || bio));
+		setNameFieldError(!(nameField || !(name === "Update below")));
+		setAgeFieldError(!(ageField || !(age === "Update below")));
+		setGenderFieldError(!(genderField || !(gender === "Update below")));
+		setBioFieldError(!(bioField || !(bio === "Update below")));
 		let allFieldsValid = (nameField || name) && (ageField || age) && (genderField || gender) && (imagePreviewUrl || actualImageUrl) &&
 							(bioField || bio);
 		setInvalidFieldFilling(!allFieldsValid);
@@ -88,7 +97,10 @@ export default function Page() {
 				name: nameField ? nameField : name,
 				age: ageField ? ageField : age,
 				gender: genderField ? genderField : gender,
-				bio: bioField ? bioField : bio
+				bio: bioField ? bioField : bio,
+				prefMinAge: prefMinAge ? prefMinAge : minAge,
+				prefMaxAge: prefMaxAge ? prefMaxAge : maxAge,
+				prefGender: prefGender ? prefGender : (gender === "Male" ? "Female" : "Male")
 			});
 			if (imagePreviewUrl) {
 				uploadBytes(ref(imageStorageRef, uid), imageField);
@@ -96,6 +108,18 @@ export default function Page() {
 				setImagePreviewUrl("");
 			}
 		}
+	}
+
+	function updatePreferences() {
+		setDoc(doc(db, "users", uid), {
+			name: nameField ? nameField : name,
+			age: ageField ? ageField : age,
+			gender: genderField ? genderField : gender,
+			bio: bioField ? bioField : bio,
+			prefMinAge: minAge,
+			prefMaxAge: maxAge,
+			prefGender: prefGenderField ? prefGenderField : prefGender
+		});
 	}
 
 	if (authLoading) {
@@ -114,7 +138,7 @@ export default function Page() {
 				<TabPanel className="flex flex-col items-center" value={"1"}>
 					<Typography variant="h2">Profile</Typography>
 
-					<div className="flex flex-col items-center border-2 border-slate-400 p-[2em] mt-[2em] rounded">
+					<div className="flex flex-col items-center min-w-[350px] border-2 border-slate-400 py-[20px] mt-[2em] rounded">
 						<Typography variant="h4" sx={{mb: 4}}>Your Data</Typography>
 
 						<img src={actualImageUrl ? actualImageUrl : ""} hidden={!actualImageUrl} className="w-100 h-100 m-5" />
@@ -135,11 +159,52 @@ export default function Page() {
 								<Typography variant="h6" sx={{mr: 2}}>Bio:</Typography>
 								<Typography variant="subtitle2">{bio}</Typography>
 							</div>
+							<Typography variant="h5" sx={{mt: 4}}>Preferences</Typography>
+							<div className="flex">
+								<Typography variant="h6" sx={{mr: 2}}>min-age: </Typography>
+								<Chip label={prefMinAge} />
+							</div>
+							<div className="flex">
+								<Typography variant="h6" sx={{mr: 2}}>max-age: </Typography>
+								<Chip label={prefMaxAge} />
+							</div>
+							<div className="flex">
+								<Typography variant="h6" sx={{mr: 2}}>Gender: </Typography>
+								<Chip label={prefGender} />
+							</div>
 						</div>
 					</div>
 
-					<div className="flex flex-col items-center border-2 border-slate-400 p-[2em] mt-[4em] rounded">
-						<Typography variant="h4" sx={{mb: 4}}>Update Data</Typography>
+					{
+						needToUpdateData ? (
+							""
+						) : (
+							<div className="flex flex-col items-center min-w-[350px] border-2 border-slate-400 p-[5px] mt-[2em] rounded">
+								<Typography variant="h4" className="text-center" sx={{m: 4}}>Update Preferences</Typography>
+								<div className="flex m-[1em]">
+									<Chip sx={{mr: 2}} label="min-age"/>
+									<Slider getAriaValueText={(value) => {setMinAge(value)}} sx={{width: 150}} valueLabelDisplay="auto" defaultValue={18} step={1} min={18} max={maxAge-1}/>
+									<Typography sx={{ml: 2}}>{minAge}</Typography>
+								</div>
+								<div className="flex m-[1em]">
+									<Chip sx={{mr: 2}} label="max-age"/>
+									<Slider getAriaValueText={(value) => {setMaxAge(value)}} sx={{width: 150}} valueLabelDisplay="auto" defaultValue={35} step={1} min={minAge+1} max={35}/>
+									<Typography sx={{ml: 2}}>{maxAge}</Typography>
+								</div>
+								<FormControl sx={{ m: 1, minWidth: 100 }}>
+									<InputLabel id="prefGenderFieldSelectLabel">Gender</InputLabel>
+									<Select label="Gender" labelId="prefGenderFieldSelectLabel" onChange={(e) => {prefGenderField = e.target.value}}>
+										<MenuItem value={"male"}>Male</MenuItem>
+										<MenuItem value={"female"}>Female</MenuItem>
+									</Select>
+								</FormControl>
+								<Button sx={{m: 1}} onClick={updatePreferences} variant="outlined">Update</Button>
+							</div>
+						)
+					}
+
+					<div className="flex flex-col items-center min-w-[350px] border-2 border-slate-400 p-[5px] mt-[4em] rounded">
+						<Typography variant="h4" sx={{m: 4}}>Update Data</Typography>
 
 						<img src={imagePreviewUrl} hidden={!imagePreviewUrl} className="w-100 h-100 m-5" />
 						<Button component="label" variant="contained" startIcon={<CloudUploadIcon />} sx={{m: 1}}>
@@ -147,7 +212,17 @@ export default function Page() {
 								<input onChange={(e) => {imageField=e.target.files[0], setImagePreviewUrl(URL.createObjectURL(imageField))}} type="file" hidden />
 						</Button>
 						<TextField sx={{m: 1}} label="Name" variant="outlined" error={nameFieldError} onChange={(e) => {nameField = e.target.value}} inputProps={{ maxLength: 32 }} />
-						<TextField sx={{m: 1}} label="Age" variant="outlined" type="number" error={ageFieldError} onChange={(e) => {ageField = e.target.value}} />
+						<div className="flex m-[1em]">
+							<Chip sx={{mr: 2}} label="Age"/>
+							<Slider getAriaValueText={(value) => {setAgeField(value)}} sx={{width: 150}} valueLabelDisplay="auto" defaultValue={NaN} step={1} min={18} max={35}/>
+							{
+								ageFieldError ? (
+									<Typography className="text-red-500" sx={{ml: 2}}>{ageField}</Typography>
+								) : (
+									<Typography sx={{ml: 2}}>{ageField}</Typography>		
+								)
+							}
+						</div>
 						<FormControl sx={{ m: 1, minWidth: 100 }}>
 							<InputLabel id="genderFieldSelectLabel">Gender</InputLabel>
 							<Select label="Gender" labelId="genderFieldSelectLabel" error={genderFieldError} onChange={(e) => {genderField = e.target.value}}>
