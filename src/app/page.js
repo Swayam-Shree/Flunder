@@ -90,7 +90,7 @@ export default function Page() {
 				gender: genderField ? genderField : gender,
 				bio: bioField ? bioField : bio
 			});
-			if (imageField) {
+			if (imagePreviewUrl) {
 				uploadBytes(ref(imageStorageRef, uid), imageField);
 				actualImageUrl = imagePreviewUrl;
 				setImagePreviewUrl("");
