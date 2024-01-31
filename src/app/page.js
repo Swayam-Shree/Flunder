@@ -1,11 +1,13 @@
 "use client";
-import { auth, db } from "../firebase/main";
+import { auth, db, storage } from "../firebase/main";
 import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
+import { ref, uploadBytes } from "firebase/storage";
 
 import { useState } from 'react';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDocument } from "react-firebase-hooks/firestore";
+import { useDownloadURL } from "react-firebase-hooks/storage";
 
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
@@ -20,54 +22,79 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { AcUnit } from "@mui/icons-material";
 
 const provider = new GoogleAuthProvider();
+const imageStorageRef = ref(storage, "images/");
 
-let nameField = "", ageField = "", genderField = "";
+let imageField = "", nameField = "", ageField = "", genderField = "", bioField = "";
 let needToUpdateData = true;
+let actualImageUrl = "";
 
 export default function Page() {
 	let [userAuth, authLoading, authError] = useAuthState(auth);
 	let uid = userAuth ? userAuth.uid : "_";
-	let [userData, userDataLoading, userDataError] = useDocument(doc(db, "users", uid));
-	let [tabState, setTabState] = useState("2");
 	
 	let content = "";
+	let [tabState, setTabState] = useState("1");
 
-	let name = "", age = "", gender = "";
+	let [imageUrl, imageUrlLoading, imageURLError] = useDownloadURL(ref(imageStorageRef, uid));
+	if (imageUrl) {
+		actualImageUrl = imageUrl;
+	}
+	let [imagePreviewUrl, setImagePreviewUrl] = useState("");
+
+	let [userData, userDataLoading, userDataError] = useDocument(doc(db, "users", uid));
+	
+	let name = "", age = "", gender = "", bio = "";
 	if (userDataLoading) {
+		name = age = gender = bio = "Loading...";
 		needToUpdateData = true;
-		name = "Loading...";
-		age = "Loading...";
-		gender = "Loading...";
+	} else if (userDataError) {
+		name = age = gender = bio = "Error";
+		needToUpdateData = true;
 	} else if (userData && !userData.data()) {
-		needToUpdateData = true;
 		name = "Update below";
 		age = "Update below";
 		gender = "Update below";
+		bio = "Update below"
+		needToUpdateData = true;
 	} else if (userData && userData.data()) {
-		needToUpdateData = false;
 		name = userData.data().name;
 		age = userData.data().age;
 		gender = userData.data().gender;
+		bio = userData.data().bio;
+		if (actualImageUrl) {
+			needToUpdateData = false;
+		}
 	}
 
 	let [nameFieldError, setNameFieldError] = useState(false);
 	let [ageFieldError, setAgeFieldError] = useState(false);
 	let [genderFieldError, setGenderFieldError] = useState(false);
+	let [bioFieldError, setBioFieldError] = useState(false);
 	let [invalidFieldFilling, setInvalidFieldFilling] = useState(false);
 	function updateData() {
-		nameField ? setNameFieldError(false) : setNameFieldError(true);
-		ageField ? setAgeFieldError(false) : setAgeFieldError(true);
-		genderField ? setGenderFieldError(false) : setGenderFieldError(true);
-		let allFieldsValid = nameField && ageField && genderField;
+		setNameFieldError(!(nameField || name));
+		setAgeFieldError(!(ageField || age));
+		setGenderFieldError(!(genderField || gender));
+		setBioFieldError(!(bioField || bio));
+		let allFieldsValid = (nameField || name) && (ageField || age) && (genderField || gender) && (imagePreviewUrl || actualImageUrl) &&
+							(bioField || bio);
 		setInvalidFieldFilling(!allFieldsValid);
 		if (allFieldsValid) {
 			setDoc(doc(db, "users", uid), {
-				name: nameField,
-				age: ageField,
-				gender: genderField		
+				name: nameField ? nameField : name,
+				age: ageField ? ageField : age,
+				gender: genderField ? genderField : gender,
+				bio: bioField ? bioField : bio
 			});
+			if (imageField) {
+				uploadBytes(ref(imageStorageRef, uid), imageField);
+				actualImageUrl = imagePreviewUrl;
+				setImagePreviewUrl("");
+			}
 		}
 	}
 
@@ -85,42 +112,59 @@ export default function Page() {
 				</TabList>
 
 				<TabPanel className="flex flex-col items-center" value={"1"}>
-					<Typography variant="h3">Profile</Typography>
+					<Typography variant="h2">Profile</Typography>
 
-					<Typography sx={{mt: 5}} variant="h5">Your Data</Typography>
+					<div className="flex flex-col items-center border-2 border-slate-400 p-[2em] mt-[2em] rounded">
+						<Typography variant="h4" sx={{mb: 4}}>Your Data</Typography>
 
-					<div className="flex">
-						<Typography variant="subtitle1">Name: </Typography>
-						<Chip label={name} />
+						<img src={actualImageUrl ? actualImageUrl : ""} hidden={!actualImageUrl} className="w-100 h-100 m-5" />
+						<div>
+							<div className="flex">
+								<Typography variant="h6" sx={{mr: 2}}>Name: </Typography>
+								<Chip label={name} />
+							</div>
+							<div className="flex">
+								<Typography variant="h6" sx={{mr: 2}}>Age: </Typography>
+								<Chip label={age} />
+							</div>
+							<div className="flex">
+								<Typography variant="h6" sx={{mr: 2}}>Gender: </Typography>
+								<Chip label={gender} />
+							</div>
+							<div className="flex">
+								<Typography variant="h6" sx={{mr: 2}}>Bio:</Typography>
+								<Typography variant="subtitle2">{bio}</Typography>
+							</div>
+						</div>
 					</div>
-					<div className="flex">
-						<Typography variant="subtitle1">Age: </Typography>
-						<Chip label={age} />
-					</div>
-					<div className="flex">
-						<Typography variant="subtitle1">Gender: </Typography>
-						<Chip label={gender} />
-					</div>
 
-					<Typography sx={{mt: 5}} variant="h5">Update Data</Typography>
+					<div className="flex flex-col items-center border-2 border-slate-400 p-[2em] mt-[4em] rounded">
+						<Typography variant="h4" sx={{mb: 4}}>Update Data</Typography>
 
-					<TextField sx={{m: 1}} label="Name" variant="outlined" error={nameFieldError} onChange={(e) => {nameField = e.target.value}} />
-					<TextField sx={{m: 1}} label="Age" variant="outlined" type="number" error={ageFieldError} onChange={(e) => {ageField = e.target.value}} />
-					<FormControl sx={{ m: 1, minWidth: 100 }}>
-						<InputLabel id="genderFieldSelectLabel">Gender</InputLabel>
-						<Select label="Gender" labelId="genderFieldSelectLabel" error={genderFieldError} onChange={(e) => {genderField = e.target.value}}>
-							<MenuItem value={"male"}>Male</MenuItem>
-							<MenuItem value={"female"}>Female</MenuItem>
-						</Select>
-					</FormControl>
-					{invalidFieldFilling ? <Typography sx={{m: 1}} variant="subtitle2">Please fill valid values and fill all the fields</Typography> : ""}
-					<Button sx={{m: 1}} onClick={updateData} variant="outlined">Update</Button>
+						<img src={imagePreviewUrl} hidden={!imagePreviewUrl} className="w-100 h-100 m-5" />
+						<Button component="label" variant="contained" startIcon={<CloudUploadIcon />} sx={{m: 1}}>
+							Upload Primary Image
+								<input onChange={(e) => {imageField=e.target.files[0], setImagePreviewUrl(URL.createObjectURL(imageField))}} type="file" hidden />
+						</Button>
+						<TextField sx={{m: 1}} label="Name" variant="outlined" error={nameFieldError} onChange={(e) => {nameField = e.target.value}} inputProps={{ maxLength: 32 }} />
+						<TextField sx={{m: 1}} label="Age" variant="outlined" type="number" error={ageFieldError} onChange={(e) => {ageField = e.target.value}} />
+						<FormControl sx={{ m: 1, minWidth: 100 }}>
+							<InputLabel id="genderFieldSelectLabel">Gender</InputLabel>
+							<Select label="Gender" labelId="genderFieldSelectLabel" error={genderFieldError} onChange={(e) => {genderField = e.target.value}}>
+								<MenuItem value={"male"}>Male</MenuItem>
+								<MenuItem value={"female"}>Female</MenuItem>
+							</Select>
+						</FormControl>
+						<TextField sx={{m: 1}} label="Bio" variant="outlined" error={bioFieldError} onChange={(e) => {bioField = e.target.value}} multiline maxRows={5} inputProps={{ maxLength: 300 }}/>
+						{invalidFieldFilling ? <Typography sx={{m: 1}} variant="subtitle2">Please fill all unupdated fields and/or primary image</Typography> : ""}
+						<Button sx={{m: 1}} onClick={updateData} variant="outlined">Update</Button>
+					</div>
 
 					<Button sx={{mt: 5}} onClick={() => {signOut(auth)}} variant="contained">Sign Out</Button>
 
 				</TabPanel>
 				<TabPanel className="flex flex-col items-center" value={"2"}>
-					<Typography variant="h3">Match</Typography>
+					<Typography variant="h2">Match</Typography>
 					{
 						needToUpdateData ? (
 							<Typography variant="h5">Please update your data in the Profile tab to start matching</Typography>
@@ -130,7 +174,7 @@ export default function Page() {
 					}
 				</TabPanel>
 				<TabPanel className="flex flex-col items-center" value={"3"}>
-					<Typography variant="h3">Inbox</Typography>
+					<Typography variant="h2">Inbox</Typography>
 				</TabPanel>
 			</TabContext>
 		</div>);
