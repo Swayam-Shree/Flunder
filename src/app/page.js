@@ -1,12 +1,12 @@
 "use client";
 import { auth, db, storage } from "../firebase/main";
 import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, query, setDoc, collection, where, getDocs } from "firebase/firestore";
 import { ref, uploadBytes } from "firebase/storage";
 
 import { useState } from 'react';
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useDocument } from "react-firebase-hooks/firestore";
+import { useDocument, useCollection } from "react-firebase-hooks/firestore";
 import { useDownloadURL } from "react-firebase-hooks/storage";
 
 import Tab from '@mui/material/Tab';
@@ -37,17 +37,16 @@ export default function Page() {
 	let uid = userAuth ? userAuth.uid : "_";
 	
 	let content = "";
-	let [tabState, setTabState] = useState("1");
+	let [tabState, setTabState] = useState("2");
 
 	let [imageUrl, imageUrlLoading, imageURLError] = useDownloadURL(ref(imageStorageRef, uid));
 	if (imageUrl) {
 		actualImageUrl = imageUrl;
 	}
 	let [imagePreviewUrl, setImagePreviewUrl] = useState("");
-
 	let [userData, userDataLoading, userDataError] = useDocument(doc(db, "users", uid));
 	
-	let name = "", age = "", gender = "", bio = "", prefMinAge = "", prefMaxAge = "", prefGender = "";
+	let name = "", age = "", gender = "", bio = "", prefMinAge = "", prefMaxAge = "", prefGender = "", rejectedUids = [];
 	if (userDataLoading) {
 		name = age = gender = bio = "Loading...";
 		needToUpdateData = true;
@@ -68,10 +67,23 @@ export default function Page() {
 		prefMinAge = userData.data().prefMinAge;
 		prefMaxAge = userData.data().prefMaxAge;
 		prefGender = userData.data().prefGender;
+		rejectedUids = userData.data().rejectedUids;
 		if (actualImageUrl) {
 			needToUpdateData = false;
 		}
 	}
+
+	let [matchUsers, matchUsersLoading, matchUsersError] = useCollection(query(collection(db, "users"), where("gender", "==", prefGender), where("age", ">=", prefMinAge), where("age", "<=", prefMaxAge)));
+	let matchUsersData = [];
+	if(matchUsers) {
+		matchUsers.docs.forEach((doc) => {
+			let data = doc.data();
+			if (data.uid !== uid && !rejectedUids?.includes(data.uid)) {
+				matchUsersData.push(doc.data());
+			}
+		});
+	}
+	// console.log(matchUsersData);
 
 	let [minAge, setMinAge] = useState(18);
 	let [maxAge, setMaxAge] = useState(35);
@@ -94,13 +106,15 @@ export default function Page() {
 		setInvalidFieldFilling(!allFieldsValid);
 		if (allFieldsValid) {
 			setDoc(doc(db, "users", uid), {
+				uid: uid,
 				name: nameField ? nameField : name,
 				age: ageField ? ageField : age,
 				gender: genderField ? genderField : gender,
 				bio: bioField ? bioField : bio,
 				prefMinAge: prefMinAge ? prefMinAge : minAge,
 				prefMaxAge: prefMaxAge ? prefMaxAge : maxAge,
-				prefGender: prefGender ? prefGender : (gender === "Male" ? "Female" : "Male")
+				prefGender: prefGender ? prefGender : (gender === "male" ? "female" : "male"),
+				rejectedUids: rejectedUids ? rejectedUids : []
 			});
 			if (imagePreviewUrl) {
 				uploadBytes(ref(imageStorageRef, uid), imageField);
@@ -244,7 +258,33 @@ export default function Page() {
 						needToUpdateData ? (
 							<Typography variant="h5">Please update your data in the Profile tab to start matching</Typography>
 						) : (
-							<Typography variant="h5">You are ready to match! Wait for updates</Typography>
+							<div>
+								{
+									matchUsersLoading ? (
+										<Typography variant="h5">Loading...</Typography>
+									) : (
+										<div>
+											{
+												matchUsersError ? (
+													<Typography variant="h5">Error</Typography>
+												) : (
+													<div>
+														{
+															matchUsersData.length === 0 ? (
+																<Typography variant="h5">No matches found</Typography>
+															) : (
+																<div>
+																	{ matchUsersData[0]?.name + "   " + matchUsersData[0]?.age + "   " + matchUsersData[0]?.gender }
+																</div>
+															)
+														}
+													</div>
+												)
+											}
+										</div>
+									)
+								}
+							</div>
 						)
 					}
 				</TabPanel>
