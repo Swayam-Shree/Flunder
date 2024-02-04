@@ -43,10 +43,11 @@ export default function Page() {
 	if (imageUrl) {
 		actualImageUrl = imageUrl;
 	}
+
 	let [imagePreviewUrl, setImagePreviewUrl] = useState("");
 	let [userData, userDataLoading, userDataError] = useDocument(doc(db, "users", uid));
 	
-	let name = "", age = "", gender = "", bio = "", prefMinAge = "", prefMaxAge = "", prefGender = "", rejectedUids = [];
+	let name = "", age = "", gender = "", bio = "", prefMinAge = "", prefMaxAge = "", prefGender = "", rejectedUids = [], likedUids = [];
 	if (userDataLoading) {
 		name = age = gender = bio = "Loading...";
 		needToUpdateData = true;
@@ -72,18 +73,20 @@ export default function Page() {
 			needToUpdateData = false;
 		}
 	}
+	
 
-	let [matchUsers, matchUsersLoading, matchUsersError] = useCollection(query(collection(db, "users"), where("gender", "==", prefGender), where("age", ">=", prefMinAge), where("age", "<=", prefMaxAge)));
+	let [matchUsers, matchUsersLoading, matchUsersError] = useCollection(query(collection(db, "users"), where("gender", "==", prefGender),
+		where("age", ">=", prefMinAge), where("age", "<=", prefMaxAge), where("prefGender", "==", gender)));
 	let matchUsersData = [];
 	if(matchUsers) {
 		matchUsers.docs.forEach((doc) => {
 			let data = doc.data();
-			if (data.uid !== uid && !rejectedUids?.includes(data.uid)) {
+			if (data.uid !== uid && !rejectedUids?.includes(data.uid) && !data.rejectedUids?.includes(uid) && !likedUids?.includes(data.uid)){
 				matchUsersData.push(doc.data());
 			}
 		});
 	}
-	// console.log(matchUsersData);
+	console.log(matchUsersData);
 
 	let [minAge, setMinAge] = useState(18);
 	let [maxAge, setMaxAge] = useState(35);
@@ -104,6 +107,7 @@ export default function Page() {
 		let allFieldsValid = (nameField || name) && (ageField || age) && (genderField || gender) && (imagePreviewUrl || actualImageUrl) &&
 							(bioField || bio);
 		setInvalidFieldFilling(!allFieldsValid);
+		
 		if (allFieldsValid) {
 			setDoc(doc(db, "users", uid), {
 				uid: uid,
@@ -113,9 +117,10 @@ export default function Page() {
 				bio: bioField ? bioField : bio,
 				prefMinAge: prefMinAge ? prefMinAge : minAge,
 				prefMaxAge: prefMaxAge ? prefMaxAge : maxAge,
-				prefGender: prefGender ? prefGender : (gender === "male" ? "female" : "male"),
-				rejectedUids: rejectedUids ? rejectedUids : []
-			});
+				prefGender: prefGender ? prefGender : (genderField === "male" ? "female" : "male"),
+				rejectedUids: rejectedUids ? rejectedUids : [],
+				likedUids: likedUids ? likedUids : []
+			}, { merge: true });
 			if (imagePreviewUrl) {
 				uploadBytes(ref(imageStorageRef, uid), imageField);
 				actualImageUrl = imagePreviewUrl;
@@ -126,14 +131,26 @@ export default function Page() {
 
 	function updatePreferences() {
 		setDoc(doc(db, "users", uid), {
-			name: nameField ? nameField : name,
-			age: ageField ? ageField : age,
-			gender: genderField ? genderField : gender,
-			bio: bioField ? bioField : bio,
 			prefMinAge: minAge,
 			prefMaxAge: maxAge,
 			prefGender: prefGenderField ? prefGenderField : prefGender
-		});
+		}, { merge: true });
+	}
+
+	function handlePass() {
+		console.log("pass");
+		rejectedUids.push(matchUsersData[0].uid);
+		setDoc(doc(db, "users", uid), {
+			rejectedUids: rejectedUids
+		}, { merge: true });
+	}
+
+	function handleLike() {
+		console.log("like");
+		likedUids.push(matchUsersData[0].uid);
+		setDoc(doc(db, "users", uid), {
+			likedUids: likedUids
+		}, { merge: true });
 	}
 
 	if (authLoading) {
@@ -173,19 +190,27 @@ export default function Page() {
 								<Typography variant="h6" sx={{mr: 2}}>Bio:</Typography>
 								<Typography variant="subtitle2">{bio}</Typography>
 							</div>
-							<Typography variant="h5" sx={{mt: 4}}>Preferences</Typography>
-							<div className="flex">
-								<Typography variant="h6" sx={{mr: 2}}>min-age: </Typography>
-								<Chip label={prefMinAge} />
-							</div>
-							<div className="flex">
-								<Typography variant="h6" sx={{mr: 2}}>max-age: </Typography>
-								<Chip label={prefMaxAge} />
-							</div>
-							<div className="flex">
-								<Typography variant="h6" sx={{mr: 2}}>Gender: </Typography>
-								<Chip label={prefGender} />
-							</div>
+							{
+								needToUpdateData ? (
+									""
+								) : (
+									<div className="flex flex-col">
+										<Typography variant="h5" sx={{mt: 4}}>Preferences</Typography>
+										<div className="flex">
+											<Typography variant="h6" sx={{mr: 2}}>min-age: </Typography>
+											<Chip label={prefMinAge} />
+										</div>
+										<div className="flex">
+											<Typography variant="h6" sx={{mr: 2}}>max-age: </Typography>
+											<Chip label={prefMaxAge} />
+										</div>
+										<div className="flex">
+											<Typography variant="h6" sx={{mr: 2}}>Gender: </Typography>
+											<Chip label={prefGender} />
+										</div>
+									</div>
+								)
+							}
 						</div>
 					</div>
 
@@ -256,7 +281,13 @@ export default function Page() {
 					<Typography variant="h2">Match</Typography>
 					{
 						needToUpdateData ? (
-							<Typography variant="h5">Please update your data in the Profile tab to start matching</Typography>
+							<div className="flex flex-col text-center">
+								<Typography variant="h5">Please update your data in the Profile tab to start matching or refresh if already done.</Typography>
+								<div className="flex justify-around m-[10px]">
+									<Button onClick={() => {setTabState("1")}} variant="outlined">Profile</Button>
+									<Button onClick={() => {location.reload()}} variant="outlined">Refresh</Button>
+								</div>
+							</div>
 						) : (
 							<div>
 								{
@@ -273,8 +304,16 @@ export default function Page() {
 															matchUsersData.length === 0 ? (
 																<Typography variant="h5">No matches found</Typography>
 															) : (
-																<div>
-																	{ matchUsersData[0]?.name + "   " + matchUsersData[0]?.age + "   " + matchUsersData[0]?.gender }
+																<div className="flex flex-col items-center">
+																	<Typography variant="h6">{matchUsersData[0].name}</Typography>
+																	<Typography variant="h6">{matchUsersData[0].age}</Typography>
+																	<Typography variant="h6">{matchUsersData[0].gender}</Typography>
+																	<Typography variant="h6">{matchUsersData[0].bio}</Typography>
+
+																	<div>
+																		<Button onClick={handlePass} sx={{m: 1}} variant="outlined">Pass</Button>
+																		<Button onClick={handleLike} sx={{m: 1}} variant="outlined">Like</Button>
+																	</div>
 																</div>
 															)
 														}
