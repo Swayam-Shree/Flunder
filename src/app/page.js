@@ -69,6 +69,7 @@ export default function Page() {
 		prefMaxAge = userData.data().prefMaxAge;
 		prefGender = userData.data().prefGender;
 		rejectedUids = userData.data().rejectedUids;
+		likedUids = userData.data().likedUids;
 		if (actualImageUrl) {
 			needToUpdateData = false;
 		}
@@ -87,6 +88,8 @@ export default function Page() {
 		});
 	}
 	console.log(matchUsersData);
+
+	let [matchImageUrl, matchImageUrlLoading, matchImageURLError] = useDownloadURL(ref(imageStorageRef, matchUsersData[0]?.uid));
 
 	let [minAge, setMinAge] = useState(18);
 	let [maxAge, setMaxAge] = useState(35);
@@ -305,6 +308,7 @@ export default function Page() {
 																<Typography variant="h5">No matches found</Typography>
 															) : (
 																<div className="flex flex-col items-center">
+																	<img src={matchImageUrl ? matchImageUrl : ""} hidden={!matchImageUrl} className="w-100 h-100 m-5" />
 																	<Typography variant="h6">{matchUsersData[0].name}</Typography>
 																	<Typography variant="h6">{matchUsersData[0].age}</Typography>
 																	<Typography variant="h6">{matchUsersData[0].gender}</Typography>
