@@ -37,7 +37,8 @@ export default function Page() {
 	let uid = userAuth ? userAuth.uid : "_";
 	
 	let content = "";
-	let [tabState, setTabState] = useState("2");
+	let [tabState, setTabState] = useState("3");
+	let [inboxTabState, setInboxTabState] = useState("2");
 
 	let [imageUrl, imageUrlLoading, imageURLError] = useDownloadURL(ref(imageStorageRef, uid));
 	if (imageUrl) {
@@ -47,7 +48,8 @@ export default function Page() {
 	let [imagePreviewUrl, setImagePreviewUrl] = useState("");
 	let [userData, userDataLoading, userDataError] = useDocument(doc(db, "users", uid));
 	
-	let name = "", age = "", gender = "", bio = "", prefMinAge = "", prefMaxAge = "", prefGender = "", rejectedUids = [], likedUids = [];
+	let name = "", age = "", gender = "", bio = "", prefMinAge = "", prefMaxAge = "", prefGender = "", rejectedUids = [], likedUids = [],
+		likeMeUids = [], chattingWith = [];
 	if (userDataLoading) {
 		name = age = gender = bio = "Loading...";
 		needToUpdateData = true;
@@ -70,6 +72,8 @@ export default function Page() {
 		prefGender = userData.data().prefGender;
 		rejectedUids = userData.data().rejectedUids;
 		likedUids = userData.data().likedUids;
+		likeMeUids = userData.data().likeMeUids;
+		chattingWith = userData.data().chattingWith;
 		if (actualImageUrl) {
 			needToUpdateData = false;
 		}
@@ -82,14 +86,18 @@ export default function Page() {
 	if(matchUsers) {
 		matchUsers.docs.forEach((doc) => {
 			let data = doc.data();
-			if (data.uid !== uid && !rejectedUids?.includes(data.uid) && !data.rejectedUids?.includes(uid) && !likedUids?.includes(data.uid)){
+			if (data.uid !== uid && !rejectedUids?.includes(data.uid) && !data.rejectedUids?.includes(uid) && !likedUids?.includes(data.uid)
+				&& !data.likedUids?.includes(uid) && !chattingWith?.includes(data.uid)){
 				matchUsersData.push(doc.data());
 			}
 		});
 	}
 	console.log(matchUsersData);
-
 	let [matchImageUrl, matchImageUrlLoading, matchImageURLError] = useDownloadURL(ref(imageStorageRef, matchUsersData[0]?.uid));
+	
+	let [likedMeUser, likedMeUsersLoading, likedMeUsersError] = useDocument(doc(db, "users", likeMeUids[0] ? likeMeUids[0] : "_"));
+	likedMeUser = likedMeUser?.data();
+	let [likedUserImageUrl, likedUserImageUrlLoading, likedUserImageURLError] = useDownloadURL(ref(imageStorageRef, likedMeUser?.uid));
 
 	let [minAge, setMinAge] = useState(18);
 	let [maxAge, setMaxAge] = useState(35);
@@ -122,7 +130,9 @@ export default function Page() {
 				prefMaxAge: prefMaxAge ? prefMaxAge : maxAge,
 				prefGender: prefGender ? prefGender : (genderField === "male" ? "female" : "male"),
 				rejectedUids: rejectedUids ? rejectedUids : [],
-				likedUids: likedUids ? likedUids : []
+				likedUids: likedUids ? likedUids : [],
+				likeMeUids: likeMeUids ? likeMeUids : [],
+				chattingWith: chattingWith ? chattingWith : []
 			}, { merge: true });
 			if (imagePreviewUrl) {
 				uploadBytes(ref(imageStorageRef, uid), imageField);
@@ -141,7 +151,6 @@ export default function Page() {
 	}
 
 	function handlePass() {
-		console.log("pass");
 		rejectedUids.push(matchUsersData[0].uid);
 		setDoc(doc(db, "users", uid), {
 			rejectedUids: rejectedUids
@@ -149,10 +158,41 @@ export default function Page() {
 	}
 
 	function handleLike() {
-		console.log("like");
-		likedUids.push(matchUsersData[0].uid);
+		let matchedUser = matchUsersData[0];
+		likedUids.push(matchedUser.uid);
 		setDoc(doc(db, "users", uid), {
 			likedUids: likedUids
+		}, { merge: true });
+		let matchedUserLikeMeUids = matchedUser.likeMeUids ? matchedUser.likeMeUids : [];
+		matchedUserLikeMeUids.push(uid);
+		setDoc(doc(db, "users", matchedUser.uid), {
+			likeMeUids: matchedUserLikeMeUids
+		}, { merge: true });
+	}
+
+	function likedUserPass() {
+		rejectedUids.push(likedMeUser.uid);
+		likeMeUids.shift();
+		setDoc(doc(db, "users", uid), {
+			rejectedUids: rejectedUids,
+			likeMeUids: likeMeUids
+		}, { merge: true });
+	}
+
+	function likedUserLike() {
+		likeMeUids.shift();
+		chattingWith.push(likedMeUser.uid);
+		setDoc(doc(db, "users", uid), {
+			likeMeUids: likeMeUids,
+			chattingWith: chattingWith
+		}, { merge: true });
+		let likedMeUserChattingWith = likedMeUser.chattingWith ? likedMeUser.chattingWith : [];
+		let likedMeUserLikedUids = likedMeUser.likedUids ? likedMeUser.likedUids : [];
+		likedMeUserLikedUids.splice(likedMeUserLikedUids.indexOf(uid), 1);
+		likedMeUserChattingWith.push(uid);
+		setDoc(doc(db, "users", likedMeUser.uid), {
+			chattingWith: likedMeUserChattingWith,
+			likedUids: likedMeUserLikedUids
 		}, { merge: true });
 	}
 
@@ -281,7 +321,7 @@ export default function Page() {
 
 				</TabPanel>
 				<TabPanel className="flex flex-col items-center" value={"2"}>
-					<Typography variant="h2">Match</Typography>
+					<Typography variant="h2" sx={{m: 2}}>Match</Typography>
 					{
 						needToUpdateData ? (
 							<div className="flex flex-col text-center">
@@ -305,9 +345,9 @@ export default function Page() {
 													<div>
 														{
 															matchUsersData.length === 0 ? (
-																<Typography variant="h5">No matches found</Typography>
+																<Typography variant="h5">No matches found. Please relax your preferences or wait for new users to join in.</Typography>
 															) : (
-																<div className="flex flex-col items-center">
+																<div className="flex flex-col items-center min-w-[350px] border-[2px] border-slate-400 rounded">
 																	<img src={matchImageUrl ? matchImageUrl : ""} hidden={!matchImageUrl} className="w-100 h-100 m-5" />
 																	<Typography variant="h6">{matchUsersData[0].name}</Typography>
 																	<Typography variant="h6">{matchUsersData[0].age}</Typography>
@@ -315,8 +355,8 @@ export default function Page() {
 																	<Typography variant="h6">{matchUsersData[0].bio}</Typography>
 
 																	<div>
-																		<Button onClick={handlePass} sx={{m: 1}} variant="outlined">Pass</Button>
-																		<Button onClick={handleLike} sx={{m: 1}} variant="outlined">Like</Button>
+																		<Button onClick={handlePass} sx={{m: 3}} variant="outlined">Pass</Button>
+																		<Button onClick={handleLike} sx={{m: 3}} variant="outlined">Like</Button>
 																	</div>
 																</div>
 															)
@@ -333,6 +373,36 @@ export default function Page() {
 				</TabPanel>
 				<TabPanel className="flex flex-col items-center" value={"3"}>
 					<Typography variant="h2">Inbox</Typography>
+					<TabContext value={inboxTabState}>
+						<TabList onChange={(e, val) => {setInboxTabState(val)}} centered>
+							<Tab label="Liked You" value="1" />
+							<Tab label="Chats" value="2" />
+						</TabList>
+						<TabPanel value="1">
+							<Typography variant="h4">Liked You</Typography>
+							{
+								likedMeUser ? (
+									<div className="flex flex-col items-center min-w-[350px] border-[2px] border-slate-400 rounded">
+										<img src={likedUserImageUrl ? likedUserImageUrl : ""} hidden={!likedUserImageUrl} className="w-100 h-100 m-5" />
+										<Typography variant="h6">{likedMeUser.name}</Typography>
+										<Typography variant="h6">{likedMeUser.age}</Typography>
+										<Typography variant="h6">{likedMeUser.gender}</Typography>
+										<Typography variant="h6">{likedMeUser.bio}</Typography>
+										<div>
+											<Button onClick={likedUserPass} sx={{m: 3}} variant="outlined">Pass</Button>
+											<Button onClick={likedUserLike} sx={{m: 3}} variant="outlined">Like</Button>
+										</div>
+									</div>
+								) : (
+									""
+								)
+							}
+						</TabPanel>
+						<TabPanel value="2">
+							<Typography variant="h4">Chats</Typography>
+							{chattingWith}
+						</TabPanel>
+					</TabContext>
 				</TabPanel>
 			</TabContext>
 		</div>);
