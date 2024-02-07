@@ -25,6 +25,8 @@ import FormControl from '@mui/material/FormControl';
 import Slider from '@mui/material/Slider';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
+import Chat from "../components/Chat";
+
 const provider = new GoogleAuthProvider();
 const imageStorageRef = ref(storage, "images/");
 
@@ -85,6 +87,7 @@ export default function Page() {
 	let matchUsersData = [];
 	if(matchUsers) {
 		matchUsers.docs.forEach((doc) => {
+			console.log(doc.data());
 			let data = doc.data();
 			if (data.uid !== uid && !rejectedUids?.includes(data.uid) && !data.rejectedUids?.includes(uid) && !likedUids?.includes(data.uid)
 				&& !data.likedUids?.includes(uid) && !chattingWith?.includes(data.uid)){
@@ -195,6 +198,12 @@ export default function Page() {
 			likedUids: likedMeUserLikedUids
 		}, { merge: true });
 	}
+
+	let chatsJsx = chattingWith.map((_uid) => {
+		return (<div>
+			<Chat uid={uid} _uid={_uid} />
+		</div>);
+	});
 
 	if (authLoading) {
 		content = (<div>Loading...</div>);
@@ -394,13 +403,13 @@ export default function Page() {
 										</div>
 									</div>
 								) : (
-									""
+									<div>no one liked you yet. hope for the best though. come back later.</div>
 								)
 							}
 						</TabPanel>
 						<TabPanel value="2">
 							<Typography variant="h4">Chats</Typography>
-							{chattingWith}
+							{chatsJsx}
 						</TabPanel>
 					</TabContext>
 				</TabPanel>
