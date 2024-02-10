@@ -25,7 +25,7 @@ import FormControl from '@mui/material/FormControl';
 import Slider from '@mui/material/Slider';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
-import Chat from "../components/Chat";
+import ChatPanel from "../components/ChatPanel";
 
 const provider = new GoogleAuthProvider();
 const imageStorageRef = ref(storage, "images/");
@@ -87,7 +87,6 @@ export default function Page() {
 	let matchUsersData = [];
 	if(matchUsers) {
 		matchUsers.docs.forEach((doc) => {
-			console.log(doc.data());
 			let data = doc.data();
 			if (data.uid !== uid && !rejectedUids?.includes(data.uid) && !data.rejectedUids?.includes(uid) && !likedUids?.includes(data.uid)
 				&& !data.likedUids?.includes(uid) && !chattingWith?.includes(data.uid)){
@@ -143,6 +142,7 @@ export default function Page() {
 				setImagePreviewUrl("");
 			}
 		}
+		document.body.scrollTop = document.documentElement.scrollTop = 0;
 	}
 
 	function updatePreferences() {
@@ -151,6 +151,7 @@ export default function Page() {
 			prefMaxAge: maxAge,
 			prefGender: prefGenderField ? prefGenderField : prefGender
 		}, { merge: true });
+		document.body.scrollTop = document.documentElement.scrollTop = 0;
 	}
 
 	function handlePass() {
@@ -201,7 +202,7 @@ export default function Page() {
 
 	let chatsJsx = chattingWith.map((_uid) => {
 		return (<div>
-			<Chat uid={uid} _uid={_uid} />
+			<ChatPanel uid={uid} _uid={_uid} />
 		</div>);
 	});
 
@@ -290,7 +291,7 @@ export default function Page() {
 									</Select>
 								</FormControl>
 								<Button sx={{m: 1}} onClick={updatePreferences} variant="outlined">Update</Button>
-							</div>
+							</div> 
 						)
 					}
 
