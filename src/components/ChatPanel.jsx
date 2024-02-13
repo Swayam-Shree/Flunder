@@ -97,9 +97,15 @@ export default function ChatPanel({ uid, _uid }) {
 					<Button variant="outlined" onClick={() => {setDrawerState(false)}}>Close</Button>
 				</div>
 				<div className="min-h-[350px] max-h-[350px] flex flex-col gap-[3px] overflow-y-auto">
-					{chats.map((data) => {
-							return <ChatBubble message={data.message} fromSelf={(uid > _uid ? 1 : 0) === data.from} />;
-					})}
+					{
+						chats ? (
+							chats.map((data) => {
+								return <ChatBubble message={data.message} fromSelf={(uid > _uid ? 1 : 0) === data.from} />;
+							})
+						) : (
+							""
+						)
+					}
 					<div ref={chatScrollDivRef} />
 				</div>
 				<div className="flex justify-around items-center border-[2px] border-slate-400 rounded">
