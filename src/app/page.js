@@ -227,7 +227,7 @@ export default function Page() {
 				<TabPanel className="flex flex-col items-center" value={"1"}>
 					<Typography variant="h2">Profile</Typography>
 
-					<div className="flex flex-col items-center min-w-[350px] md:min-w-[550px] border-2 border-slate-400 py-[20px] mt-[2em] rounded">
+					<div className="flex flex-col items-center min-w-[350px] md:min-w-[550px] border-2 border-slate-400 py-[20px] mt-[2em] rounded px-[5px]">
 						<Typography variant="h3" sx={{mb: 4}}>Your Data</Typography>
 
 						<img src={actualImageUrl ? actualImageUrl : ""} hidden={!actualImageUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px] md:min-w-[350px] md:max-w-[350px] rounded" />
