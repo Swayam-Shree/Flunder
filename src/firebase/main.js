@@ -12,6 +12,7 @@ import { getStorage } from "firebase/storage";
 //   appId: "1:1013887551567:web:cb1f025240b3658832823a"
 // };
 
+// firebase deploy --only hosting:flunder
 const firebaseConfig = {
   apiKey: "AIzaSyCCwd8S-z1aYiHQdfR9bRg1DFIcbsHVHLE",
   authDomain: "flunder-787d0.firebaseapp.com",

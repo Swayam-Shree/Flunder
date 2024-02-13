@@ -422,9 +422,13 @@ export default function Page() {
 				<TabPanel className="flex flex-col items-center" value={"4"}>
 					<div className="flex flex-col p-[15px] items-center border-[2px] rounded border-slate-400 min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px] text-center">
 						<Typography variant="h2">Support</Typography>
-						<Typography sx={{mt: 5}} variant="h6">Please report any issue and bugs at:</Typography>
+						<Typography sx={{mt: 2}} variant="h3">Bugs</Typography>
+						<Typography sx={{mt: 2}} variant="h6">Please report any issue and bugs at:</Typography>
 						<Typography className="text-red-500" sx={{my: 2}} variant="h5">f20230354@hyderabad.bits-pilani.ac.in</Typography>
 						<Typography variant="h6">Please be patient updates will be continously rolling through.</Typography>
+
+						{/* <Typography sx={{mt: 4}} variant="h3">Donations</Typography>
+						<Typography sx={{mt: 2}} variant="h6">All donations will be reinvested into the site.</Typography> */}
 					</div>
 				</TabPanel>
 			</TabContext>
@@ -442,7 +446,7 @@ export default function Page() {
 			<div className="flex flex-col mt-[25px] items-center border-[2px] border-slate-400 rounded min-h-[600px] min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px] justify-center">
 				<Typography className="text-center border-2 border-black rounded" variant="h3" sx={{m: 5, p: 2}}>Flunder</Typography>
 				<Typography className="text-center" sx={{m: 3}} variant="h5">The site for BPHC people to form new connections around campus.</Typography>
-				<Typography className="text-center" sx={{m: 3}} variant="h6">Coming to you this valentine's day, to let you find your special someone.</Typography>
+				<Typography className="text-center" sx={{m: 3}} variant="h6">Coming to you this valentine's day, to let you find your special someone among other people.</Typography>
 				<Typography className="text-center" variant="h6" sx={{m: 3}}>Site under constrution, please be patient</Typography>
 				<Button sx={{mb: 2}} onClick={() => {signInWithPopup(auth, provider)}} variant="outlined" size="large">Sign In</Button>
 			</div>
