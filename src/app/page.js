@@ -207,25 +207,29 @@ export default function Page() {
 	});
 
 	if (authLoading) {
-		content = (<div>Loading...</div>);
+		content = (<div className="flex flex-col justify-center items-center">
+			<Typography variant="h3">Loading...</Typography>
+			<Typography variant="subtitle1">Please wait. Might take a while if network issues are present.</Typography>
+		</div>);
 	} else if (authError) {
 		content = (<div>Error</div>);
-	} else if (userAuth) {
+	} else if (userAuth?.email.includes("hyderabad.bits-pilani.ac.in")) {
 		content = (<div className="min-h-[100vh]">
 			<TabContext value={tabState}>
 				<TabList onChange={(e, val) => {setTabState(val)}} centered>
 					<Tab label="Profile" value="1" />
 					<Tab label="Match" value="2" />
 					<Tab label="Inbox" value="3" />
+					<Tab label="Support" value="4" />
 				</TabList>
 
 				<TabPanel className="flex flex-col items-center" value={"1"}>
 					<Typography variant="h2">Profile</Typography>
 
-					<div className="flex flex-col items-center min-w-[350px] border-2 border-slate-400 py-[20px] mt-[2em] rounded">
+					<div className="flex flex-col items-center min-w-[350px] md:min-w-[550px] border-2 border-slate-400 py-[20px] mt-[2em] rounded">
 						<Typography variant="h3" sx={{mb: 4}}>Your Data</Typography>
 
-						<img src={actualImageUrl ? actualImageUrl : ""} hidden={!actualImageUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px]" />
+						<img src={actualImageUrl ? actualImageUrl : ""} hidden={!actualImageUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px] md:min-w-[350px] md:max-w-[350px] rounded" />
 						<div>
 							<div className="flex items-center">
 								<Typography variant="subtitle2" sx={{mr: 2}}>Name: </Typography>
@@ -271,7 +275,7 @@ export default function Page() {
 						needToUpdateData ? (
 							""
 						) : (
-							<div className="flex flex-col items-center min-w-[350px] border-2 border-slate-400 p-[5px] mt-[2em] rounded">
+							<div className="flex flex-col items-center min-w-[350px] md:min-w-[550px] border-2 border-slate-400 p-[5px] mt-[2em] rounded">
 								<Typography variant="h3" className="text-center" sx={{m: 4}}>Update Preferences</Typography>
 								<div className="flex m-[1em]">
 									<Chip sx={{mr: 2}} label="min-age"/>
@@ -295,10 +299,10 @@ export default function Page() {
 						)
 					}
 
-					<div className="flex flex-col items-center min-w-[350px] border-2 border-slate-400 p-[5px] mt-[4em] rounded">
+					<div className="flex flex-col items-center min-w-[350px] md:min-w-[550px] border-2 border-slate-400 p-[5px] mt-[4em] rounded">
 						<Typography variant="h3" sx={{m: 4}}>Update Data</Typography>
 
-						<img src={imagePreviewUrl} hidden={!imagePreviewUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px]" />
+						<img src={imagePreviewUrl} hidden={!imagePreviewUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px] md:min-w-[350px] md:max-w-[350px]" />
 						<Button component="label" variant="contained" startIcon={<CloudUploadIcon />} sx={{m: 1}}>
 							Upload Primary Image
 								<input onChange={(e) => {imageField=e.target.files[0], setImagePreviewUrl(URL.createObjectURL(imageField))}} type="file" hidden />
@@ -327,7 +331,7 @@ export default function Page() {
 						<Button sx={{m: 1}} onClick={updateData} variant="outlined">Update</Button>
 					</div>
 
-					<Button sx={{mt: 5}} onClick={() => {signOut(auth)}} variant="contained">Sign Out</Button>
+					<Button sx={{mt: 7}} size="large" color="error" onClick={() => {signOut(auth)}} variant="outlined">Sign Out</Button>
 
 				</TabPanel>
 				<TabPanel className="flex flex-col items-center" value={"2"}>
@@ -357,8 +361,8 @@ export default function Page() {
 															matchUsersData.length === 0 ? (
 																<Typography variant="subtitle1">No matches found. Please relax your preferences or wait for new users to join in.</Typography>
 															) : (
-																<div className="flex flex-col items-center min-w-[350px] border-[2px] border-slate-400 rounded">
-																	<img src={matchImageUrl ? matchImageUrl : ""} hidden={!matchImageUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px]" />
+																<div className="flex flex-col items-center min-w-[350px] md:min-w-[550px] border-[2px] border-slate-400 rounded">
+																	<img src={matchImageUrl ? matchImageUrl : ""} hidden={!matchImageUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px] md:min-w-[350px] md:max-w-[350px]" />
 																	<Typography variant="h6">{matchUsersData[0].name}</Typography>
 																	<Typography variant="h6">{matchUsersData[0].age}</Typography>
 																	<Typography variant="h6">{matchUsersData[0].gender}</Typography>
@@ -392,8 +396,8 @@ export default function Page() {
 							<Typography variant="h4">Liked You</Typography>
 							{
 								likedMeUser ? (
-									<div className="flex flex-col items-center min-w-[350px] border-[2px] border-slate-400 rounded">
-										<img src={likedUserImageUrl ? likedUserImageUrl : ""} hidden={!likedUserImageUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px]" />
+									<div className="flex flex-col items-center min-w-[350px] md:min-w-[550px] border-[2px] border-slate-400 rounded">
+										<img src={likedUserImageUrl ? likedUserImageUrl : ""} hidden={!likedUserImageUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px] md:min-w-[350px] md:max-w-[350px]" />
 										<Typography variant="h6">{likedMeUser.name}</Typography>
 										<Typography variant="h6">{likedMeUser.age}</Typography>
 										<Typography variant="h6">{likedMeUser.gender}</Typography>
@@ -414,14 +418,33 @@ export default function Page() {
 						</TabPanel>
 					</TabContext>
 				</TabPanel>
+				<TabPanel className="flex flex-col items-center" value={"4"}>
+					<div className="flex flex-col p-[15px] items-center border-[2px] rounded border-slate-400 min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px] text-center">
+						<Typography variant="h2">Support</Typography>
+						<Typography sx={{mt: 5}} variant="h6">Please report any issue and bugs at:</Typography>
+						<Typography className="text-red-500" sx={{my: 2}} variant="h5">f20230354@hyderabad.bits-pilani.ac.in</Typography>
+						<Typography variant="h6">Please be patient updates will be continously rolling through.</Typography>
+					</div>
+				</TabPanel>
 			</TabContext>
+		</div>);
+	} else if (userAuth) {
+		content = (<div className="flex flex-col items-center">
+			<div className="flex flex-col mt-[25px] items-center border-[2px] border-slate-400 rounded min-h-[600px] min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px] justify-center">
+				<Typography sx={{m: 3}} variant="h3">Unauthorized</Typography>
+				<Typography sx={{m: 3}} variant="subtitle1">Please use your BITS mail to access the site.</Typography>
+				<Button sx={{m: 3}} onClick={() => {signOut(auth)}} size="large" color="error" variant="outlined">Sign Out</Button>
+			</div>
 		</div>);
 	} else {
 		content = (<div className="flex flex-col items-center">
-			<Typography className="text-center border-2 border-black rounded" variant="h3" sx={{m: 5, p: 2}}>Flunder</Typography>
-			<Typography className="text-center" sx={{m: 3}} variant="h5">Welcome to the Dating site for BPHC.</Typography>
-			<Typography className="text-center" variant="h6" sx={{m: 3}}>Site under constrution, please be patient</Typography>
-			<Button onClick={() => {signInWithPopup(auth, provider)}} variant="contained">Sign In</Button>
+			<div className="flex flex-col mt-[25px] items-center border-[2px] border-slate-400 rounded min-h-[600px] min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px] justify-center">
+				<Typography className="text-center border-2 border-black rounded" variant="h3" sx={{m: 5, p: 2}}>Flunder</Typography>
+				<Typography className="text-center" sx={{m: 3}} variant="h5">The site for BPHC people to form new connections around campus.</Typography>
+				<Typography className="text-center" sx={{m: 3}} variant="h6">Coming to you this valentine's day, to let you find your special someone.</Typography>
+				<Typography className="text-center" variant="h6" sx={{m: 3}}>Site under constrution, please be patient</Typography>
+				<Button sx={{mb: 2}} onClick={() => {signInWithPopup(auth, provider)}} variant="outlined" size="large">Sign In</Button>
+			</div>
 		</div>);
 	}
 
