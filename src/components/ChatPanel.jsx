@@ -43,7 +43,7 @@ export default function ChatPanel({ uid, _uid }) {
 		if (chatState === "") return;
 
 		chats.push({
-			from: uid > _uid ? 1 : 0,
+			from: !user0 ? 1 : 0,
 			message: chatState
 		});
 
@@ -67,8 +67,6 @@ export default function ChatPanel({ uid, _uid }) {
 		chatScrollDivRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, 200);
 
-	console.log(unRead);
-
 	let content = "";
 	if (userDataError) {
 		content = <div>Error</div>;
@@ -85,7 +83,8 @@ export default function ChatPanel({ uid, _uid }) {
 					""
 				)}
 			</div>
-			<Drawer className="flex flex-col" onClose={() => {setDrawerState(false);
+			<Drawer className="flex flex-col" onClose={() => {
+					setDrawerState(false);
 					if (user0) {
 						setDoc(doc(db, "chats", chatName), { unRead0: false }, { merge: true });
 					} else {

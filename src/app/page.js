@@ -408,6 +408,7 @@ export default function Page() {
 					}
 					<div className="mt-[150px]">
 						<Typography variant="h6">recent updates:</Typography>
+						<Typography>more support options</Typography>
 						<Typography>chat notification indicators</Typography>
 						<Typography>liked notification counters</Typography>
 						<Typography>update log</Typography>
@@ -453,6 +454,9 @@ export default function Page() {
 					<div className="flex flex-col p-[15px] items-center border-[2px] rounded border-slate-400 min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px] text-center">
 						<Typography variant="h2">Support</Typography>
 						<Typography sx={{mt: 2}} variant="h3">Bugs</Typography>
+
+						<Typography sx={{mt: 2}} variant="h6">Feel free to dm me for bugs on:</Typography>
+						<Typography className="text-red-500" sx={{my: 2}} variant="h5">9315891040</Typography>
 						<Typography sx={{mt: 2}} variant="h6">Please report any issue and bugs at:</Typography>
 						<Typography className="text-red-500" sx={{my: 2}} variant="h5">f20230354@hyderabad.bits-pilani.ac.in</Typography>
 						<Typography variant="h6">Please be patient updates will be continously rolling through.</Typography>
