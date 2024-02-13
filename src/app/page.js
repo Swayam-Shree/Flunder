@@ -39,7 +39,7 @@ export default function Page() {
 	let uid = userAuth ? userAuth.uid : "_";
 	
 	let content = "";
-	let [tabState, setTabState] = useState("3");
+	let [tabState, setTabState] = useState("2");
 	let [inboxTabState, setInboxTabState] = useState("2");
 
 	let [imageUrl, imageUrlLoading, imageURLError] = useDownloadURL(ref(imageStorageRef, uid));
@@ -211,7 +211,7 @@ export default function Page() {
 	} else if (authError) {
 		content = (<div>Error</div>);
 	} else if (userAuth) {
-		content = (<div>
+		content = (<div className="min-h-[100vh]">
 			<TabContext value={tabState}>
 				<TabList onChange={(e, val) => {setTabState(val)}} centered>
 					<Tab label="Profile" value="1" />
@@ -223,43 +223,43 @@ export default function Page() {
 					<Typography variant="h2">Profile</Typography>
 
 					<div className="flex flex-col items-center min-w-[350px] border-2 border-slate-400 py-[20px] mt-[2em] rounded">
-						<Typography variant="h4" sx={{mb: 4}}>Your Data</Typography>
+						<Typography variant="h3" sx={{mb: 4}}>Your Data</Typography>
 
-						<img src={actualImageUrl ? actualImageUrl : ""} hidden={!actualImageUrl} className="w-100 h-100 m-5" />
+						<img src={actualImageUrl ? actualImageUrl : ""} hidden={!actualImageUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px]" />
 						<div>
-							<div className="flex">
-								<Typography variant="h6" sx={{mr: 2}}>Name: </Typography>
-								<Chip label={name} />
+							<div className="flex items-center">
+								<Typography variant="subtitle2" sx={{mr: 2}}>Name: </Typography>
+								<Typography variant="h6" sx={{mr: 2}}>{name} </Typography>
 							</div>
-							<div className="flex">
-								<Typography variant="h6" sx={{mr: 2}}>Age: </Typography>
-								<Chip label={age} />
+							<div className="flex items-center">
+								<Typography variant="subtitle2" sx={{mr: 2}}>Age: </Typography>
+								<Typography variant="h6" sx={{mr: 2}}>{age}</Typography>
 							</div>
-							<div className="flex">
-								<Typography variant="h6" sx={{mr: 2}}>Gender: </Typography>
-								<Chip label={gender} />
+							<div className="flex items-center">
+								<Typography variant="subtitle2" sx={{mr: 2}}>Gender: </Typography>
+								<Typography variant="h6" sx={{mr: 2}}>{gender} </Typography>
 							</div>
-							<div className="flex">
-								<Typography variant="h6" sx={{mr: 2}}>Bio:</Typography>
-								<Typography variant="subtitle2">{bio}</Typography>
+							<div className="flex items-center">
+								<Typography variant="subtitle2" sx={{mr: 2}}>Bio:</Typography>
+								<Typography variant="h6">{bio}</Typography>
 							</div>
 							{
 								needToUpdateData ? (
 									""
 								) : (
 									<div className="flex flex-col">
-										<Typography variant="h5" sx={{mt: 4}}>Preferences</Typography>
-										<div className="flex">
-											<Typography variant="h6" sx={{mr: 2}}>min-age: </Typography>
-											<Chip label={prefMinAge} />
+										<Typography variant="h5" sx={{mt: 4}}>--- Preferences ---</Typography>
+										<div className="flex items-center">
+											<Typography variant="subtitle2" sx={{mr: 2}}>min-age: </Typography>
+											<Typography variant="h6" sx={{mr: 2}}>{prefMinAge}</Typography>
 										</div>
-										<div className="flex">
-											<Typography variant="h6" sx={{mr: 2}}>max-age: </Typography>
-											<Chip label={prefMaxAge} />
+										<div className="flex items-center">
+											<Typography variant="subtitle2" sx={{mr: 2}}>max-age: </Typography>
+											<Typography variant="h6" sx={{mr: 2}}>{prefMaxAge}</Typography>
 										</div>
-										<div className="flex">
-											<Typography variant="h6" sx={{mr: 2}}>Gender: </Typography>
-											<Chip label={prefGender} />
+										<div className="flex items-center">
+											<Typography variant="subtitle2" sx={{mr: 2}}>Gender: </Typography>
+											<Typography variant="h6" sx={{mr: 2}}>{prefGender}</Typography>
 										</div>
 									</div>
 								)
@@ -272,7 +272,7 @@ export default function Page() {
 							""
 						) : (
 							<div className="flex flex-col items-center min-w-[350px] border-2 border-slate-400 p-[5px] mt-[2em] rounded">
-								<Typography variant="h4" className="text-center" sx={{m: 4}}>Update Preferences</Typography>
+								<Typography variant="h3" className="text-center" sx={{m: 4}}>Update Preferences</Typography>
 								<div className="flex m-[1em]">
 									<Chip sx={{mr: 2}} label="min-age"/>
 									<Slider getAriaValueText={(value) => {setMinAge(value)}} sx={{width: 150}} valueLabelDisplay="auto" defaultValue={18} step={1} min={18} max={maxAge-1}/>
@@ -296,9 +296,9 @@ export default function Page() {
 					}
 
 					<div className="flex flex-col items-center min-w-[350px] border-2 border-slate-400 p-[5px] mt-[4em] rounded">
-						<Typography variant="h4" sx={{m: 4}}>Update Data</Typography>
+						<Typography variant="h3" sx={{m: 4}}>Update Data</Typography>
 
-						<img src={imagePreviewUrl} hidden={!imagePreviewUrl} className="w-100 h-100 m-5" />
+						<img src={imagePreviewUrl} hidden={!imagePreviewUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px]" />
 						<Button component="label" variant="contained" startIcon={<CloudUploadIcon />} sx={{m: 1}}>
 							Upload Primary Image
 								<input onChange={(e) => {imageField=e.target.files[0], setImagePreviewUrl(URL.createObjectURL(imageField))}} type="file" hidden />
@@ -335,7 +335,7 @@ export default function Page() {
 					{
 						needToUpdateData ? (
 							<div className="flex flex-col text-center">
-								<Typography variant="h5">Please update your data in the Profile tab to start matching or refresh if already done.</Typography>
+								<Typography variant="subtitle1">Please update your data in the Profile tab to start matching or refresh if already done.</Typography>
 								<div className="flex justify-around m-[10px]">
 									<Button onClick={() => {setTabState("1")}} variant="outlined">Profile</Button>
 									<Button onClick={() => {location.reload()}} variant="outlined">Refresh</Button>
@@ -355,10 +355,10 @@ export default function Page() {
 													<div>
 														{
 															matchUsersData.length === 0 ? (
-																<Typography variant="h5">No matches found. Please relax your preferences or wait for new users to join in.</Typography>
+																<Typography variant="subtitle1">No matches found. Please relax your preferences or wait for new users to join in.</Typography>
 															) : (
 																<div className="flex flex-col items-center min-w-[350px] border-[2px] border-slate-400 rounded">
-																	<img src={matchImageUrl ? matchImageUrl : ""} hidden={!matchImageUrl} className="w-100 h-100 m-5" />
+																	<img src={matchImageUrl ? matchImageUrl : ""} hidden={!matchImageUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px]" />
 																	<Typography variant="h6">{matchUsersData[0].name}</Typography>
 																	<Typography variant="h6">{matchUsersData[0].age}</Typography>
 																	<Typography variant="h6">{matchUsersData[0].gender}</Typography>
@@ -393,7 +393,7 @@ export default function Page() {
 							{
 								likedMeUser ? (
 									<div className="flex flex-col items-center min-w-[350px] border-[2px] border-slate-400 rounded">
-										<img src={likedUserImageUrl ? likedUserImageUrl : ""} hidden={!likedUserImageUrl} className="w-100 h-100 m-5" />
+										<img src={likedUserImageUrl ? likedUserImageUrl : ""} hidden={!likedUserImageUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px]" />
 										<Typography variant="h6">{likedMeUser.name}</Typography>
 										<Typography variant="h6">{likedMeUser.age}</Typography>
 										<Typography variant="h6">{likedMeUser.gender}</Typography>
@@ -404,7 +404,7 @@ export default function Page() {
 										</div>
 									</div>
 								) : (
-									<div>no one liked you yet. hope for the best though. come back later.</div>
+									<Typography variant="subtitle1">no one liked you yet. hope for the best though. come back later.</Typography>
 								)
 							}
 						</TabPanel>
