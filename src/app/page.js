@@ -141,8 +141,9 @@ export default function Page() {
 				actualImageUrl = imagePreviewUrl;
 				setImagePreviewUrl("");
 			}
+			setTabState("2");
+			// document.body.scrollTop = document.documentElement.scrollTop = 0;
 		}
-		document.body.scrollTop = document.documentElement.scrollTop = 0;
 	}
 
 	function updatePreferences() {
