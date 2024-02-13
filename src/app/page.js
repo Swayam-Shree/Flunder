@@ -233,14 +233,9 @@ export default function Page() {
 				<TabList onChange={(e, val) => {setTabState(val)}} centered>
 					<Tab label="Profile" value="1" />
 					<Tab label="Match" value="2" />
-					{likedMeUser ? (
-						<Badge badgeContent={likeMeUids.length} color="primary" overlap="circular" onClick={() => {setTabState("3")}}>
-							<Tab label="Inbox" value="3" />
-						</Badge>
-					) : (
+					<Badge badgeContent={likeMeUids.length} color="primary" overlap="circular" onClick={() => {setTabState("3")}}>
 						<Tab label="Inbox" value="3" />
-					)}
-					{/* <Tab label="Inbox" value="3" /> */}
+					</Badge>
 					<Tab label="Support" value="4" />
 				</TabList>
 
@@ -413,6 +408,7 @@ export default function Page() {
 					}
 					<div className="mt-[150px]">
 						<Typography variant="h6">recent updates:</Typography>
+						<Typography>chat notification indicators</Typography>
 						<Typography>liked notification counters</Typography>
 						<Typography>update log</Typography>
 						<Typography>user counters</Typography>
@@ -422,14 +418,9 @@ export default function Page() {
 					<Typography variant="h2">Inbox</Typography>
 					<TabContext value={inboxTabState}>
 						<TabList onChange={(e, val) => {setInboxTabState(val)}} centered>
-							{likedMeUser ? (
-								<Badge badgeContent={likeMeUids.length} color="primary" overlap="circular" onClick={() => {setInboxTabState("1")}}>
-									<Tab label="Liked You" value="1" />
-								</Badge>
-							) : (
+							<Badge badgeContent={likeMeUids.length} color="primary" overlap="circular" onClick={() => {setInboxTabState("1")}}>
 								<Tab label="Liked You" value="1" />
-							)}
-							{/* <Tab label="Liked You" value="1" /> */}
+							</Badge>
 							<Tab label="Chats" value="2" />
 						</TabList>
 						<TabPanel value="1">
