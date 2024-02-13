@@ -109,7 +109,7 @@ export default function ChatPanel({ uid, _uid }) {
 					<div ref={chatScrollDivRef} />
 				</div>
 				<div className="flex justify-around items-center border-[2px] border-slate-400 rounded">
-					<TextField value={chatState} onChange={(e) => {setChatState(e.target.value)}} onKeyPress={(ev) => {if (ev.key === "Enter") {ev.preventDefault(); chatSend()}}} label="Chat..." variant="filled" />
+					<TextField fullWidth value={chatState} onChange={(e) => {setChatState(e.target.value)}} onKeyPress={(ev) => {if (ev.key === "Enter") {ev.preventDefault(); chatSend()}}} label="Chat..." variant="filled" />
 					<Button width="70" height="40" variant="outlined" onClick={chatSend} style={{maxWidth: '70px', maxHeight: '40px', minWidth: '30px', minHeight: '30px'}}><SendIcon /></Button>
 				</div>
 			</Drawer>

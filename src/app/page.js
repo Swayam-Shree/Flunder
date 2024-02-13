@@ -407,7 +407,8 @@ export default function Page() {
 						)
 					}
 					<div className="mt-[150px]">
-						<Typography variant="h6">recent updates:</Typography>
+						<Typography variant="h6">post release update log:</Typography>
+						<Typography>wider text field for chat</Typography>
 						<Typography>more support options</Typography>
 						<Typography>chat notification indicators</Typography>
 						<Typography>liked notification counters</Typography>
