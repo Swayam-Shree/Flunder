@@ -81,7 +81,7 @@ export default function Page() {
 		}
 	}
 	
-
+	let [allUsers, allUsersLoading, allUsersError] = useCollection(collection(db, "users"));
 	let [matchUsers, matchUsersLoading, matchUsersError] = useCollection(query(collection(db, "users"), where("gender", "==", prefGender),
 		where("age", ">=", prefMinAge), where("age", "<=", prefMaxAge), where("prefGender", "==", gender)));
 	let matchUsersData = [];
@@ -94,7 +94,6 @@ export default function Page() {
 			}
 		});
 	}
-	console.log(matchUsersData);
 	let [matchImageUrl, matchImageUrlLoading, matchImageURLError] = useDownloadURL(ref(imageStorageRef, matchUsersData[0]?.uid));
 	
 	let [likedMeUser, likedMeUsersLoading, likedMeUsersError] = useDocument(doc(db, "users", likeMeUids[0] ? likeMeUids[0] : "_"));
@@ -207,6 +206,19 @@ export default function Page() {
 		</div>);
 	});
 
+	let maleCount = 0;
+	let femaleCount = 0;
+	if (allUsers) {
+		allUsers.docs.forEach((doc) => {
+			let data = doc.data();
+			if (data.gender === "female") {
+				++femaleCount;
+			} else {
+				++maleCount;
+			}
+		});
+	}
+
 	if (authLoading) {
 		content = (<div className="flex flex-col justify-center items-center">
 			<Typography variant="h3">Loading...</Typography>
@@ -214,7 +226,7 @@ export default function Page() {
 		</div>);
 	} else if (authError) {
 		content = (<div>Error</div>);
-	} else if (userAuth?.email.includes("hyderabad.bits-pilani.ac.in")) {
+	} else if (userAuth?.email.includes("@hyderabad.bits-pilani.ac.in")) {
 		content = (<div className="min-h-[100vh]">
 			<TabContext value={tabState}>
 				<TabList onChange={(e, val) => {setTabState(val)}} centered>
@@ -336,6 +348,11 @@ export default function Page() {
 
 				</TabPanel>
 				<TabPanel className="flex flex-col items-center" value={"2"}>
+					<div className="flex justify-around min-w-[350px]">
+						<Typography variant="subtitle2">total: {allUsers?.docs.length}</Typography>
+						<Typography variant="subtitle2">men: {maleCount}</Typography>
+						<Typography variant="subtitle2">women: {femaleCount}</Typography>
+					</div>
 					<Typography variant="h2" sx={{m: 2}}>Match</Typography>
 					{
 						needToUpdateData ? (
@@ -360,7 +377,8 @@ export default function Page() {
 													<div>
 														{
 															matchUsersData.length === 0 ? (
-																<Typography variant="subtitle1">No matches found. Please relax your preferences or wait for new users to join in.</Typography>
+																<Typography variant="subtitle1">No matches found. Please relax your preferences or wait for new users to join in. Otherwise check liked you section in inbox.
+																You might also not be getting matched if you have been passed by available users.</Typography>
 															) : (
 																<div className="flex flex-col items-center min-w-[350px] md:min-w-[550px] border-[2px] border-slate-400 rounded">
 																	<img src={matchImageUrl ? matchImageUrl : ""} hidden={!matchImageUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px] md:min-w-[350px] md:max-w-[350px]" />
