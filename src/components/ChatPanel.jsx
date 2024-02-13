@@ -29,11 +29,14 @@ export default function ChatPanel({ uid, _uid }) {
 	let chatName = uid > _uid ? uid + _uid : _uid + uid;
 	let [chatData, chatDataLoading, chatDataError] = useDocument(doc(db, "chats", chatName));
 
+	let user0 = uid < _uid;
+
 	let chats = [];
-	let unRead = false;
+	let unRead0 = false, unRead1 = false;
 	if (chatData && chatData.data()) {
 		chats = chatData.data().chats;
-		unRead = chatData.data().unRead;
+		unRead0 = chatData.data().unRead0;
+		unRead1 = chatData.data().unRead1;
 	}
 
 	function chatSend() {
@@ -43,7 +46,12 @@ export default function ChatPanel({ uid, _uid }) {
 			from: uid > _uid ? 1 : 0,
 			message: chatState
 		});
-		setDoc(doc(db, "chats", chatName), {chats: chats, unRead: true});
+
+		if (user0) {
+			setDoc(doc(db, "chats", chatName), {chats: chats, unRead1: true});
+		} else {
+			setDoc(doc(db, "chats", chatName), {chats: chats, unRead0: true});
+		}
 
 		setChatState("");
 
@@ -71,13 +79,19 @@ export default function ChatPanel({ uid, _uid }) {
 			<div className="border-[2px] border-slate-400 rounded min-w-[330px] flex my-[3px] px-[20px] py-[10px] gap-x-[15px] hover:bg-slate-300 hover:border-slate-500 items-center" onClick={() => {setDrawerState(true)}}>
 				<Avatar alt="name" src={userImageUrl} />
 				<Typography variant="h6">{userData.data().name}</Typography>
-				{ unRead ? (
+				{ (user0 && unRead0) || (!user0 && unRead1) ? (
 					<div className="w-[20px] h-[20px] bg-red-400 rounded-full text-center text-white">!</div> 
 				) : (
 					""
 				)}
 			</div>
-			<Drawer className="flex flex-col" onClose={() => {setDrawerState(false); setDoc(doc(db, "chats", chatName), { unRead: false }, { merge: true });}} open={drawerState} anchor="bottom">
+			<Drawer className="flex flex-col" onClose={() => {setDrawerState(false);
+					if (user0) {
+						setDoc(doc(db, "chats", chatName), { unRead0: false }, { merge: true });
+					} else {
+						setDoc(doc(db, "chats", chatName), { unRead1: false }, { merge: true });
+					}
+				}} open={drawerState} anchor="bottom">
 				<div className="border-[2px] border-slate-400 rounded min-w-[350px] flex m-[3px] px-[20px] py-[10px] gap-x-[15px] items-center justify-around">
 					<Avatar alt="name" src={userImageUrl} />
 					<Typography variant="h6">{userData.data().name}</Typography>
