@@ -24,6 +24,7 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import Slider from '@mui/material/Slider';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import Badge from '@mui/material/Badge';
 
 import ChatPanel from "../components/ChatPanel";
 
@@ -232,7 +233,14 @@ export default function Page() {
 				<TabList onChange={(e, val) => {setTabState(val)}} centered>
 					<Tab label="Profile" value="1" />
 					<Tab label="Match" value="2" />
-					<Tab label="Inbox" value="3" />
+					{likedMeUser ? (
+						<Badge badgeContent={likeMeUids.length} color="primary" overlap="circular" onClick={() => {setTabState("3")}}>
+							<Tab label="Inbox" value="3" />
+						</Badge>
+					) : (
+						<Tab label="Inbox" value="3" />
+					)}
+					{/* <Tab label="Inbox" value="3" /> */}
 					<Tab label="Support" value="4" />
 				</TabList>
 
@@ -403,12 +411,25 @@ export default function Page() {
 							</div>
 						)
 					}
+					<div className="mt-[150px]">
+						<Typography variant="h6">recent updates:</Typography>
+						<Typography>liked notification counters</Typography>
+						<Typography>update log</Typography>
+						<Typography>user counters</Typography>
+					</div>
 				</TabPanel>
 				<TabPanel className="flex flex-col items-center" value={"3"}>
 					<Typography variant="h2">Inbox</Typography>
 					<TabContext value={inboxTabState}>
 						<TabList onChange={(e, val) => {setInboxTabState(val)}} centered>
-							<Tab label="Liked You" value="1" />
+							{likedMeUser ? (
+								<Badge badgeContent={likeMeUids.length} color="primary" overlap="circular" onClick={() => {setInboxTabState("1")}}>
+									<Tab label="Liked You" value="1" />
+								</Badge>
+							) : (
+								<Tab label="Liked You" value="1" />
+							)}
+							{/* <Tab label="Liked You" value="1" /> */}
 							<Tab label="Chats" value="2" />
 						</TabList>
 						<TabPanel value="1">
