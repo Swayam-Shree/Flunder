@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "flunder",
     "source": ".",
     "ignore": [
       "firebase.json",
