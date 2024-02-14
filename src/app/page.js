@@ -495,6 +495,8 @@ export default function Page() {
 
 						<Typography sx={{mt: 2}} variant="h6">Feel free to dm me for bugs on:</Typography>
 						<Typography className="text-red-500" sx={{my: 2}} variant="h5">9315891040</Typography>
+						{/* <Typography className="text-red-500" sx={{my: 2}} variant="h5"></Typography> */}
+						<a className="text-blue-500" href="https://www.instagram.com/swayam_shree_sharma/">https://www.instagram.com/swayam_shree_sharma/</a>
 						<Typography sx={{mt: 2}} variant="h6">Please report any issue and bugs at:</Typography>
 						<Typography className="text-red-500" sx={{my: 2}} variant="h5">f20230354@hyderabad.bits-pilani.ac.in</Typography>
 						<Typography variant="h6">Please be patient updates will be continously rolling through.</Typography>
