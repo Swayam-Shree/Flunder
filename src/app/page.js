@@ -263,7 +263,7 @@ export default function Page() {
 
 					<Typography variant="h2">Profile</Typography>
 
-					<div className="flex flex-col items-center min-w-[350px] md:min-w-[550px] border-2 border-slate-400 py-[20px] mt-[2em] rounded px-[5px]">
+					<div className="flex flex-col items-center min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px] border-2 border-slate-400 mt-[2em] rounded p-[15px]">
 						<Typography variant="h3" sx={{mb: 4}}>Your Data</Typography>
 
 						<img src={actualImageUrl ? actualImageUrl : ""} hidden={!actualImageUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px] md:min-w-[350px] md:max-w-[350px] rounded" />
@@ -312,7 +312,7 @@ export default function Page() {
 						needToUpdateData ? (
 							""
 						) : (
-							<div className="flex flex-col items-center min-w-[350px] md:min-w-[550px] border-2 border-slate-400 p-[5px] mt-[2em] rounded">
+							<div className="flex flex-col items-center min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px] border-2 border-slate-400 p-[5px] mt-[2em] rounded">
 								<Typography variant="h3" className="text-center" sx={{m: 4}}>Update Preferences</Typography>
 								<div className="flex m-[1em]">
 									<Chip sx={{mr: 2}} label="min-age"/>
@@ -394,7 +394,7 @@ export default function Page() {
 					<Typography variant="h2" sx={{m: 2}}>Match</Typography>
 					{
 						needToUpdateData ? (
-							<div className="flex flex-col text-center">
+							<div className="flex flex-col text-center items-center border-[2px] border-slate-400 rounded min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px] justify-center">
 								<Typography variant="subtitle1">Please update your data in the Profile tab to start matching or refresh if already done.</Typography>
 								<div className="flex justify-around m-[10px]">
 									<Button onClick={() => {setTabState("1")}} variant="outlined">Profile</Button>
@@ -415,10 +415,12 @@ export default function Page() {
 													<div>
 														{
 															matchUsersData.length === 0 ? (
-																<Typography variant="subtitle1">No matches found. Please relax your preferences or wait for new users to join in. Otherwise check liked you section in inbox.
-																You might also not be getting matched if you have been passed by available users.</Typography>
+																<Typography sx={{p: 2}} className="flex flex-col items-center border-[2px] border-slate-400 rounded min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px]" variant="subtitle1">
+																	No matches found. Please relax your preferences or wait for new users to join in. Otherwise check liked you section in inbox.
+																	You might also not be getting matched if you have been passed by available users.
+																</Typography>
 															) : (
-																<div className="flex flex-col items-center min-w-[350px] md:min-w-[550px] border-[2px] border-slate-400 rounded">
+																<div className="flex flex-col items-center border-[2px] border-slate-400 rounded min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px]">
 																	<img src={matchImageUrl ? matchImageUrl : ""} hidden={!matchImageUrl} className="w-100 h-100 m-5 min-w-[300px] max-w-[300px] md:min-w-[350px] md:max-w-[350px]" />
 																	<Typography variant="h6">{matchUsersData[0].name}</Typography>
 																	<Typography variant="h6">{matchUsersData[0].age}</Typography>
