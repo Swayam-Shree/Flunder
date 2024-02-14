@@ -64,7 +64,9 @@ export default function Page() {
 		needToUpdateData = true;
 	} else if (userDataError) {
 		name = age = gender = bio = "Error";
-		setDailyServerQuotaReached(true);
+		// if (!dailyServerQuotaReached) {
+		// 	setDailyServerQuotaReached(true);
+		// }
 		needToUpdateData = true;
 	} else if (userData && !userData.data()) {
 		name = "Update below";
