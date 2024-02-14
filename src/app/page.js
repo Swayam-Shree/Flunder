@@ -394,11 +394,11 @@ export default function Page() {
 					<Typography variant="h2" sx={{m: 2}}>Match</Typography>
 					{
 						needToUpdateData ? (
-							<div className="flex flex-col text-center items-center border-[2px] border-slate-400 rounded min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px] justify-center">
+							<div className="flex flex-col text-center items-center border-[2px] border-slate-400 rounded min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px] justify-center p-[20px]">
 								<Typography variant="subtitle1">Please update your data in the Profile tab to start matching or refresh if already done.</Typography>
 								<div className="flex justify-around m-[10px]">
-									<Button onClick={() => {setTabState("1")}} variant="outlined">Profile</Button>
-									<Button onClick={() => {location.reload()}} variant="outlined">Refresh</Button>
+									<Button sx={{m: 1}} onClick={() => {setTabState("1")}} variant="outlined">Profile</Button>
+									<Button sx={{m: 1}} onClick={() => {location.reload()}} variant="outlined">Refresh</Button>
 								</div>
 							</div>
 						) : (
@@ -415,7 +415,7 @@ export default function Page() {
 													<div>
 														{
 															matchUsersData.length === 0 ? (
-																<Typography sx={{p: 2}} className="flex flex-col items-center border-[2px] border-slate-400 rounded min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px]" variant="subtitle1">
+																<Typography sx={{p: 3}} className="flex flex-col items-center border-[2px] border-slate-400 rounded min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px]" variant="subtitle1">
 																	No matches found. Please relax your preferences or wait for new users to join in. Otherwise check liked you section in inbox.
 																	You might also not be getting matched if you have been passed by available users.
 																</Typography>
