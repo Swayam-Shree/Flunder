@@ -388,6 +388,8 @@ export default function Page() {
 						)
 					}
 
+					<Typography variant="subtitle2">if nothing is loading, then probably the free daily server quota is finished. Please wait for the next day.</Typography>
+
 					<div className="flex justify-around min-w-[350px]">
 						<Typography variant="subtitle2">total: {allUsers?.docs.length}</Typography>
 						<Typography variant="subtitle2">men: {maleCount}</Typography>
