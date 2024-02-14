@@ -30,7 +30,7 @@ import Badge from '@mui/material/Badge';
 
 import ChatPanel from "../components/ChatPanel";
 
-import qrImage from "../assets/qr.jpeg";
+import gpayQr from "../assets/qr.jpeg";
 
 const provider = new GoogleAuthProvider();
 const imageStorageRef = ref(storage, "images/");
@@ -503,7 +503,7 @@ export default function Page() {
 
 						<Typography sx={{mt: 4}} variant="h3">Donations</Typography>
 						<Typography sx={{mt: 2}} variant="h6">All donations will be reinvested into the site to obtain better servers and prevent blackouts.</Typography>
-						<Image src={qrImage} width={300} height={300} />
+						<Image src={gpayQr} width={300} height={300} alt="gpay: 9315891040" />
 					</div>
 				</TabPanel>
 			</TabContext>
