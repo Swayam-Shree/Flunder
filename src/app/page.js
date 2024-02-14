@@ -9,6 +9,8 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useDocument, useCollection } from "react-firebase-hooks/firestore";
 import { useDownloadURL } from "react-firebase-hooks/storage";
 
+import Image from "next/image"
+
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
@@ -27,6 +29,8 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Badge from '@mui/material/Badge';
 
 import ChatPanel from "../components/ChatPanel";
+
+import qrImage from "../assets/qr.jpeg";
 
 const provider = new GoogleAuthProvider();
 const imageStorageRef = ref(storage, "images/");
@@ -50,6 +54,8 @@ export default function Page() {
 
 	let [imagePreviewUrl, setImagePreviewUrl] = useState("");
 	let [userData, userDataLoading, userDataError] = useDocument(doc(db, "users", uid));
+
+	let [dailyServerQuotaReached, setDailyServerQuotaReached] = useState(false);
 	
 	let name = "", age = "", gender = "", bio = "", prefMinAge = "", prefMaxAge = "", prefGender = "", rejectedUids = [], likedUids = [],
 		likeMeUids = [], chattingWith = [];
@@ -58,6 +64,7 @@ export default function Page() {
 		needToUpdateData = true;
 	} else if (userDataError) {
 		name = age = gender = bio = "Error";
+		setDailyServerQuotaReached(true);
 		needToUpdateData = true;
 	} else if (userData && !userData.data()) {
 		name = "Update below";
@@ -240,6 +247,20 @@ export default function Page() {
 				</TabList>
 
 				<TabPanel className="flex flex-col items-center" value={"1"}>
+					{
+						dailyServerQuotaReached ? (
+							<div className="flex flex-col items-center">
+								<div className="flex flex-col mt-[25px] items-center border-[2px] border-slate-400 rounded min-h-[600px] min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px] justify-center">
+									<Typography sx={{m: 3}} variant="h3">Server Quota Reached</Typography>
+									<Typography sx={{m: 3}} variant="subtitle1">Daily server quota for free server reached. Please try again tommorow.</Typography>
+									<Button sx={{m: 3}} onClick={() => {location.reload}} size="large" color="error" variant="outlined">Refresh</Button>
+								</div>
+							</div>
+						) : (
+							""
+						)
+					}
+
 					<Typography variant="h2">Profile</Typography>
 
 					<div className="flex flex-col items-center min-w-[350px] md:min-w-[550px] border-2 border-slate-400 py-[20px] mt-[2em] rounded px-[5px]">
@@ -351,6 +372,20 @@ export default function Page() {
 
 				</TabPanel>
 				<TabPanel className="flex flex-col items-center" value={"2"}>
+					{
+						dailyServerQuotaReached ? (
+							<div className="flex flex-col items-center">
+								<div className="flex flex-col mt-[25px] items-center border-[2px] border-slate-400 rounded min-h-[600px] min-w-[350px] max-w-[350px] md:min-w-[550px] md:max-w-[550px] justify-center">
+									<Typography sx={{m: 3}} variant="h3">Server Quota Reached</Typography>
+									<Typography sx={{m: 3}} variant="subtitle1">Daily server quota for free server reached. Please try again tommorow.</Typography>
+									<Button sx={{m: 3}} onClick={() => {location.reload}} size="large" color="error" variant="outlined">Refresh</Button>
+								</div>
+							</div>
+						) : (
+							""
+						)
+					}
+
 					<div className="flex justify-around min-w-[350px]">
 						<Typography variant="subtitle2">total: {allUsers?.docs.length}</Typography>
 						<Typography variant="subtitle2">men: {maleCount}</Typography>
@@ -408,6 +443,8 @@ export default function Page() {
 					}
 					<div className="mt-[150px]">
 						<Typography variant="h6">post release update log:</Typography>
+						<Typography>server quota exceed handle</Typography>
+						<Typography>qr in support</Typography>
 						<Typography>wider text field for chat</Typography>
 						<Typography>more support options</Typography>
 						<Typography>chat notification indicators</Typography>
@@ -462,8 +499,9 @@ export default function Page() {
 						<Typography className="text-red-500" sx={{my: 2}} variant="h5">f20230354@hyderabad.bits-pilani.ac.in</Typography>
 						<Typography variant="h6">Please be patient updates will be continously rolling through.</Typography>
 
-						{/* <Typography sx={{mt: 4}} variant="h3">Donations</Typography>
-						<Typography sx={{mt: 2}} variant="h6">All donations will be reinvested into the site.</Typography> */}
+						<Typography sx={{mt: 4}} variant="h3">Donations</Typography>
+						<Typography sx={{mt: 2}} variant="h6">All donations will be reinvested into the site to obtain better servers and prevent blackouts.</Typography>
+						<Image src={qrImage} width={300} height={300} />
 					</div>
 				</TabPanel>
 			</TabContext>
